@@ -1,0 +1,51 @@
+---- entering process_trap
+kernel read: from the process to the kernel
+---- leaving process_trap
+---- entering process_trap
+kernel read: from the process to the kernel
+---- leaving process_trap
+writing in pid 2329
+trapping to 2323 in pid 2329
+reading in pid 2329
+process 2329 read: from the kernel to the process
+---- entering child_done
+process exited:     2329
+cpid == 0
+---- leaving child_done
+writing in pid 2328
+trapping to 2323 in pid 2328
+reading in pid 2328
+process 2328 read: from the kernel to the process
+---- entering child_done
+process exited:     2328
+cpid == 0
+---- leaving child_done
+---- entering process_trap
+kernel read: from the process to the kernel
+---- leaving process_trap
+writing in pid 2327
+trapping to 2323 in pid 2327
+reading in pid 2327
+process 2327 read: from the kernel to the process
+---- entering child_done
+process exited:     2327
+cpid == 0
+---- leaving child_done
+---- entering process_trap
+kernel read: from the process to the kernel
+---- leaving process_trap
+writing in pid 2326
+trapping to 2323 in pid 2326
+reading in pid 2326
+process 2326 read: from the kernel to the process
+---- entering child_done
+process exited:     2326
+cpid == 0
+---- leaving child_done
+---- entering process_trap
+kernel read: from the process to the kernel
+---- leaving process_trap
+writing in pid 2325
+trapping to 2323 in pid 2325
+reading in pid 2325
+process 2325 read: from the kernel to the process

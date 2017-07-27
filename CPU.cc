@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  *  Programmer:         Zachary Champion
  *  Project:            CS 3600 Homework 3
@@ -415,6 +414,3 @@ int main (int argc, char **argv)
         perror ("pause");
     }
 }
-=======
-}
->>>>>>> 67b96ef0e47737628cc735cf3144e131c77e5bcb
