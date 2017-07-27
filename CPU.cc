@@ -3,7 +3,7 @@
  *  Project:            CS 3600 Homework 3
  *  Description:        Virtual CPU
  *  Date Last Updated:  27 July 2017
- *  Sources & help:     Collaborated with Joey in the CS room.
+ *  Sources & help:     Collaborated with the CS room.
 */
 
 #include <iostream>
@@ -18,6 +18,19 @@
 
 
 #define NUM_SECONDS 20
+
+#define READ_END 0
+#define WRITE_END 1
+
+#define NUM_CHILDREN 5
+#define NUM_PIPES NUM_CHILDREN*2
+
+#define P2K i
+#define K2P i+1
+
+#define WRITE(a) { const char *foo = a; write (1, foo, strlen (foo)); }
+
+int child_count = 0;
 
 // make sure the asserts work
 #undef NDEBUG
@@ -368,32 +381,37 @@ void create_idle ()
     idle->started = sys_time;
 }
 
+void create_proc(char* moniker)
+{
+    PCB *arg;
+
+    arg = new (PCB);
+    arg->state = NEW;
+    arg->name = moniker;
+    arg->pid = 0;
+    arg->ppid = 0;
+    arg->interrupts = 0;
+    arg->switches = 0;
+    arg->started = 0;
+
+    for (int p = 0; p < NUM_PIPES; p++) {
+        
+    }
+
+    new_list.push_back(arg);
+}
+
 int main (int argc, char **argv)
 {
     int pid = getpid();
     dprintt ("main", pid);
 
-    /*
-    2) Take any number of arguments for executables, and place each on new_list.
-        The executable will not require arguments themselves.
-    */
+
     if (argc > 0) {
-        PCB *arg;
-
         for (int a = 1; a < argc; a++) {
-            arg = new (PCB);
-            arg->state = NEW;
-            arg->name = argv[a];
-            arg->pid = 0;
-            arg->ppid = 0;
-            arg->interrupts = 0;
-            arg->switches = 0;
-            arg->started = 0;
-
-            new_list.push_back(arg);
+            create_proc(argv[a]);
         }
     }
-    /* End my section */
 
     sys_time = 0;
 
