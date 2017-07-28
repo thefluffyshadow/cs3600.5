@@ -323,12 +323,27 @@ void trapper(int signum)
     ** read the mesage sent and signaled by the SIGTRAP.
     */
     list<PCB*>::iterator process;
-    // TODO:
-    // Put on hold for now so I can focus on the main function in order to get a
-    // better understanding of the bigger picture and what this trapper function
-    // needs to do.
+
+    if (buffer[0] == 'p')
+    {
+        char timeToSend[1];
+        char message[BUFFER_SIZE];
+
+        if (sprintf(timeToSend, "%d", sys_time) < 0)
+        {
+            perror("sprintf");
+        }
+
+        strcpy(message, "Processes: ");
+        for (process = processes.begin(); process != processes.end(); process++)
+        {
+            strcat(message, (*(process))->name);
+            strcat(message, ", ");
+        }
 
 
+        // TODO: ===================================================================== BOOKMARK ========
+    }
 }
 
 /*
