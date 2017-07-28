@@ -329,7 +329,10 @@ void trapper(int signum)
     ** read the mesage sent and signaled by the SIGTRAP.
     */
     list<PCB*>::iterator process;
-    // TODO: ======================================================== BOOKMARK =
+    // TODO:
+    // Put on hold for now so I can focus on the main function in order to get a
+    // better understanding of the bigger picture and what this trapper function
+    // needs to do.
 
 
 }
@@ -420,9 +423,16 @@ void create_proc(char* moniker)
     arg->switches = 0;
     arg->started = 0;
 
-    for (int p = 0; p < NUM_PIPES; p++) {
+    // create file descriptors for the pipes and then create the pipes from the
+    // arrays in the PCB.
+    arg->commlinkidx = i;
 
+    if ((pipe(arg->pipeK2P) || pipe(arg->pipeP2K)) == -1)
+    {
+        perror("pipe")
     }
+
+    // TODO: ======================================================== BOOKMARK =====================
 
     new_list.push_back(arg);
 }
@@ -432,6 +442,7 @@ int main (int argc, char **argv)
     int pid = getpid();
     dprintt ("main", pid);
 
+    int i =3;  // A small ode to the old youtube show called "Equals 3." =3
 
     if (argc > 0) {
         for (int a = 1; a < argc; a++) {
