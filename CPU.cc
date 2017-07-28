@@ -341,8 +341,19 @@ void trapper(int signum)
             strcat(message, ", ");
         }
 
+        strcat(message, "\nSystem time: ");
+        strcat(message, timeToSend);
+        strcat(message, "\n\0");
 
-        // TODO: ===================================================================== BOOKMARK ========
+        if ((write((running->commlinkidx) + WRITE_END, message, strlen(message) + 1)) == -1)
+        {
+            perror("write");
+        }
+
+        if (kill(running->pid, SIGUSR1) == -1)
+        {
+            perror("kill");
+        }
     }
 }
 
