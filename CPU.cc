@@ -442,7 +442,7 @@ void create_proc(char* moniker)
             perror("dup2");
         }
 
-    // TODO: ======================================================== BOOKMARK =====================
+    link_start_i += 4;
 
     new_list.push_back(arg);
 }
