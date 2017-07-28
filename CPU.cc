@@ -26,13 +26,7 @@
 
 #define BUFFER_SIZE 1024
 
-// #define NUM_CHILDREN 5
-// #define NUM_PIPES NUM_CHILDREN*2
-
-#define P2K i
-#define K2P i+1
-
-#define WRITE(a) { const char *foo = a; write (1, foo, strlen (foo)); }
+int link_start_i;
 
 // make sure the asserts work
 #undef NDEBUG
@@ -196,7 +190,7 @@ PCB* choose_process ()
 
         pid_t pid = fork();
         // only execl if in the child
-        if (pid == 0)fileDesID
+        if (pid == 0)
         {
             cout << "Executing " << new_process->name;
             if (execl(new_process->name, new_process->name, NULL) == -1 )
@@ -429,7 +423,7 @@ void create_proc(char* moniker)
 
     if ((pipe(arg->pipeK2P) || pipe(arg->pipeP2K)) == -1)
     {
-        perror("pipe")
+        perror("pipe");
     }
 
     // Inside each pipe, create the descriptors for each end.
@@ -452,7 +446,7 @@ int main (int argc, char **argv)
     int pid = getpid();
     dprintt ("main", pid);
 
-    int link_start_i =3;  // A small ode to the old youtube show called "Equals 3." =3
+    link_start_i =3;  // A small ode to the old youtube show called "Equals 3." =3
 
     if (argc > 0) {
         for (int a = 1; a < argc; a++) {
