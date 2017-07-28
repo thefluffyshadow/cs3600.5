@@ -3,7 +3,7 @@
  *  Project:            CS 3600 Homework 3
  *  Description:        Virtual CPU
  *  Date Last Updated:  27 July 2017
- *  Sources & help:     Collaborated with the CS room.
+ *  Sources & help:     Collaborated with Joey B and Bob Lee in the CS Room.
 */
 
 #include <iostream>
@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
+#include <cassert>
 
 
 #define NUM_SECONDS 20
@@ -22,19 +24,18 @@
 #define READ_END 0
 #define WRITE_END 1
 
-#define NUM_CHILDREN 5
-#define NUM_PIPES NUM_CHILDREN*2
+#define BUFFER_SIZE 1024
+
+// #define NUM_CHILDREN 5
+// #define NUM_PIPES NUM_CHILDREN*2
 
 #define P2K i
 #define K2P i+1
 
 #define WRITE(a) { const char *foo = a; write (1, foo, strlen (foo)); }
 
-int child_count = 0;
-
 // make sure the asserts work
 #undef NDEBUG
-#include <cassert>
 
 #define EBUG
 #ifdef EBUG
@@ -80,6 +81,9 @@ struct PCB
     int interrupts;     // number of times interrupted
     int switches;       // may be < interrupts
     int started;        // the time this process started
+    int pipeK2P[2];     // array for kernel-to-process pipe
+    int pipeP2K[2];     // array for process-to-kernel pipe
+    int commlinkidx;
 };
 
 /*
@@ -192,7 +196,7 @@ PCB* choose_process ()
 
         pid_t pid = fork();
         // only execl if in the child
-        if (pid == 0)
+        if (pid == 0)fileDesID
         {
             cout << "Executing " << new_process->name;
             if (execl(new_process->name, new_process->name, NULL) == -1 )
@@ -308,6 +312,28 @@ void process_done (int signum)
     }
 }
 
+void trapper(int signum)
+{
+    assert (signum == SIGTRAP);
+    cout << "It's a trap!" << endl << "Entered trapper()" << endl;
+
+    char buffer[BUFFER_SIZE];
+
+    if ((read((running->commlinkidx) + READ_END, buffer, BUFFER_SIZE)) == -1)
+    {
+        perror("read");
+    }
+
+    /*
+    ** Using the index of the pipe of the process currently running,
+    ** read the mesage sent and signaled by the SIGTRAP.
+    */
+    list<PCB*>::iterator process;
+    // TODO: ======================================================== BOOKMARK =
+
+
+}
+
 /*
 ** stop the running process and index into the ISV to call the ISR
 */
@@ -330,7 +356,7 @@ void boot (int pid)
 {
     ISV[SIGALRM] = scheduler;       create_handler (SIGALRM, ISR);
     ISV[SIGCHLD] = process_done;    create_handler (SIGCHLD, ISR);
-    // Z: Probably shouldn't have to create more handlers.
+    ISV[SIGTRAP] = trapper;         create_handler (SIGTRAP, ISR);
 
     // start up clock interrupt
     int ret;
@@ -395,7 +421,7 @@ void create_proc(char* moniker)
     arg->started = 0;
 
     for (int p = 0; p < NUM_PIPES; p++) {
-        
+
     }
 
     new_list.push_back(arg);

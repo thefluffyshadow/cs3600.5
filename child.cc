@@ -1,15 +1,12 @@
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <assert.h>
+#include <iostream>
 #include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <signal.h>
-#include <fcntl.h>
 #include <sys/wait.h>
-#include <time.h>
+#include <string.h>
+#include <stdlib.h>
+
+using namespace std;
 
 #define READ 0
 #define WRITE 1
@@ -17,23 +14,44 @@
 #define TO_KERNEL 3
 #define FROM_KERNEL 4
 
+#define BUFFER_SIZE 1024
+
+int lock = 1;
+
+void unlock(int signum)
+{
+    cout << "Unlocked from child (" << getpid() << ")." << endl;
+    lock = 0;
+}
+
 int main (int argc, char** argv)
 {
-    int pid = getpid();
-    int ppid = getppid();
+    signal(SIGUSR1, unlock);
+	int fileDes = atoi(argv[0]);
+	char buffer[BUFFER_SIZE];
 
-    printf ("writing in pid %d\n", pid);
-    const char *message = "from the process to the kernel";
-    write (TO_KERNEL, message, strlen (message));
+	char* message = "p";
+	if(write((fileDes + TO_KERNEL), message, strlen(message)) == -1)
+    {
+        perror("write");
+    }
 
-    printf ("trapping to %d in pid %d\n", ppid, pid);
-    kill (ppid, SIGTRAP);
+	if(kill(getppid(), SIGTRAP) < 0)
+    {
+        perror("kill");
+    }
 
-    printf ("reading in pid %d\n", pid);
-    char buf[1024];
-    int num_read = read (FROM_KERNEL, buf, 1023);
-    buf[num_read] = '\0';
-    printf ("process %d read: %s\n", pid, buf);
+	while(lock){
+        sleep(1);
+    }
 
-    exit (0);
+	if(read(fileDes, buffer, BUFFER_SIZE) == -1)
+    {
+        perror("read");
+    }
+
+	if(write(1, buffer, strlen(buffer)) == -1)
+    {
+        perror("write");
+    }
 }
