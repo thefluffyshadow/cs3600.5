@@ -425,12 +425,22 @@ void create_proc(char* moniker)
 
     // create file descriptors for the pipes and then create the pipes from the
     // arrays in the PCB.
-    arg->commlinkidx = i;
+    arg->commlinkidx = link_start_i;
 
     if ((pipe(arg->pipeK2P) || pipe(arg->pipeP2K)) == -1)
     {
         perror("pipe")
     }
+
+    // Inside each pipe, create the descriptors for each end.
+    if (
+        dup2((arg->commlinkidx) + 0, arg->pipeK2P[READ_END])  &&
+        dup2((arg->commlinkidx) + 1, arg->pipeK2P[WRITE_END]) &&
+        dup2((arg->commlinkidx) + 2, arg->pipeP2K[READ_END])  &&
+        dup2((arg->commlinkidx) + 3, arg->pipeP2K[WRITE_END]) == -1)
+        {
+            perror("dup2");
+        }
 
     // TODO: ======================================================== BOOKMARK =====================
 
@@ -442,7 +452,7 @@ int main (int argc, char **argv)
     int pid = getpid();
     dprintt ("main", pid);
 
-    int i =3;  // A small ode to the old youtube show called "Equals 3." =3
+    int link_start_i =3;  // A small ode to the old youtube show called "Equals 3." =3
 
     if (argc > 0) {
         for (int a = 1; a < argc; a++) {
