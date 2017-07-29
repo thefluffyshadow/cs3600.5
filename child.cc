@@ -8,9 +8,6 @@
 
 using namespace std;
 
-#define READ 0
-#define WRITE 1
-
 #define TO_KERNEL 3
 #define FROM_KERNEL 4
 
@@ -27,10 +24,11 @@ void unlock(int signum)
 int main (int argc, char** argv)
 {
     signal(SIGUSR1, unlock);
-	int fileDes = atoi(argv[0]);
-	char buffer[BUFFER_SIZE];
 
-	char* message = "p";
+	int fileDes = atoi(argv[1]);
+	char buffer[BUFFER_SIZE];
+	char* message = (char*)'p';
+
 	if(write((fileDes + TO_KERNEL), message, strlen(message)) == -1)
     {
         perror("write");

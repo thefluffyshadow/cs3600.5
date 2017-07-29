@@ -19,7 +19,7 @@
 #include <cassert>
 
 
-#define NUM_SECONDS 20
+#define NUM_SECONDS 5
 
 #define READ_END 0
 #define WRITE_END 1
@@ -188,12 +188,15 @@ PCB* choose_process ()
     if (!new_list.empty()) {
         PCB *new_process = new_list.front();
 
+        char commlink[BUFFER_SIZE];
+        sprintf(commlink, "%d", new_process->commlinkidx);
+
         pid_t pid = fork();
         // only execl if in the child
         if (pid == 0)
         {
             cout << "Executing " << new_process->name;
-            if (execl(new_process->name, new_process->name, NULL) == -1 )
+            if (execl(new_process->name, new_process->name, commlink, NULL) == -1)
             {
                 cout  << " failed. Removing from new_list.";
                 perror("execl");
@@ -309,7 +312,7 @@ void process_done (int signum)
 void trapper(int signum)
 {
     assert (signum == SIGTRAP);
-    cout << "It's a trap!" << endl << "Entered trapper()" << endl;
+    cout << "It's a trap! (" << signum << ")" << endl;
 
     char buffer[BUFFER_SIZE];
 
@@ -326,6 +329,8 @@ void trapper(int signum)
 
     if (buffer[0] == 'p')
     {
+        cout << "Request \'p\' received from " << running->name << "." << endl;
+
         char timeToSend[1];
         char message[BUFFER_SIZE];
 
@@ -345,7 +350,10 @@ void trapper(int signum)
         strcat(message, timeToSend);
         strcat(message, "\n\0");
 
-        if ((write((running->commlinkidx) + WRITE_END, message, strlen(message) + 1)) == -1)
+        cout << "Sending:" << endl
+             << message << endl;
+
+        if ((write(running->commlinkidx + WRITE_END, message, strlen(message) + 1)) == -1)
         {
             perror("write");
         }
@@ -447,7 +455,7 @@ void create_proc(char* moniker)
     // arrays in the PCB.
     arg->commlinkidx = link_start_i;
 
-    if ((pipe(arg->pipeK2P) || pipe(arg->pipeP2K)) == -1)
+    if ((pipe(arg->pipeK2P) || pipe(arg->pipeP2K)) == true)
     {
         perror("pipe");
     }
