@@ -117,6 +117,39 @@ list<PCB *> processes;
 
 int sys_time;
 
+int eye2eh (int i, char *buf, int bufsize, int base)
+{
+    if (bufsize < 1) return (-1);
+    buf[bufsize-1] = '\0';
+    if (bufsize == 1) return (0);
+    if (base < 2 || base > 16)
+    {
+        for (int j = bufsize-2; j >= 0; j--)
+        {
+            buf[j] = ' ';
+        }
+        return (-1);
+    }
+
+    int count = 0;
+    const char *digits = "0123456789ABCDEF";
+    for (int j = bufsize-2; j >= 0; j--)
+    {
+        if (i == 0)
+        {
+            buf[j] = ' ';
+        }
+        else
+        {
+            buf[j] = digits[i%base];
+            i = i/base;
+            count++;
+        }
+    }
+    if (i != 0) return (-1);
+    return (count);
+}
+
 /*
 **  send signal to process pid every interval for number of times.
 */
@@ -175,7 +208,7 @@ PCB* choose_process ()
         PCB *new_process = new_list.front();
 
         char commlink[BUFFER_SIZE];
-        sprintf(commlink, "%d", new_process->commlinkidx);
+        assert(eye2eh(new_process->commlinkidx, commlink, 4, 10) > 0);
 
         pid_t pid = fork();
         // only execl if in the child

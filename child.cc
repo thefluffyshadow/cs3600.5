@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <stdlib.h>
+#include <cassert>
 
 bool lock = true;
 
@@ -29,7 +30,8 @@ int main (int argc, char** argv)
 
     signal(SIGUSR1, unlock);
 
-	long comm_addr = strtol(argv[0], NULL, 10);
+    long comm_addr = strtol(argv[0], NULL, 10);
+    assert(comm_addr > 0);
 	char buffer[BUFFER_SIZE];
 	char message = 'p';
 
