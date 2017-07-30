@@ -302,10 +302,10 @@ void trapper(int signum)
 
     char buffer[BUFFER_SIZE];
 
-    if (read(running->commlinkidx + READ_END, buffer, BUFFER_SIZE) == -1)
+    if (read((running->commlinkidx - 4), buffer, BUFFER_SIZE) < 1)
     {
         perror("read");
-        cout << "Read error in file: " << __FILE__ << endl;
+        cout << "Read error in file: " << __FILE__ << " from comm " << running->commlinkidx - 4<< endl;
     }
 
     /*
@@ -461,8 +461,6 @@ void create_proc(char* moniker)
             perror("dup2");
         }
 
-    link_start_i += 4;
-
     new_list.push_back(arg);
 }
 
@@ -476,6 +474,8 @@ int main (int argc, char **argv)
     if (argc > 0) {
         for (int a = 1; a < argc; a++) {
             create_proc(argv[a]);
+
+            link_start_i += 4;
         }
     }
 

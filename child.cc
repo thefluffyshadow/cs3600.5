@@ -14,6 +14,7 @@ using namespace std;
 #define FROM_KERNEL 4
 
 #define BUFFER_SIZE 1024
+#define SPINLOCK_TIMEOUT 3
 
 void unlock(int signum)
 {
@@ -25,19 +26,16 @@ int main (int argc, char** argv)
 {
     cout << "Entered child (" << getpid() << ")." << endl
          << "Argv: " << argv[0] << endl;
+
     signal(SIGUSR1, unlock);
 
-	int comm_addr = atoi(argv[0]);
+	long comm_addr = strtol(argv[0], NULL, 10);
 	char buffer[BUFFER_SIZE];
-	char* message = "p";
+	char message = 'p';
 
-	if(write((comm_addr + TO_KERNEL), message, strlen(message)) == -1)
+	if(write((comm_addr + TO_KERNEL), &message, strlen(&message)) == -1)
     {
         perror("write");
-    }
-    else
-    {
-        cout << "Child: Writing (" << message << ") successful." << endl;
     }
 
 	if(kill(getppid(), SIGTRAP) < 0)
@@ -50,8 +48,15 @@ int main (int argc, char** argv)
     }
 
     cout << "Child sleeping..." << endl;
+    int spin_timer = 0;
 	do {
         sleep(1);
+        spin_timer++;
+
+        if (spin_timer >= SPINLOCK_TIMEOUT)
+        {
+            return -1;
+        }
     } while(lock);
     cout << "Child waking up." << endl;
 
