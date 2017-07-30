@@ -19,7 +19,7 @@
 #include <cassert>
 
 
-#define NUM_SECONDS 5
+#define NUM_SECONDS 20
 
 #define READ_END 0
 #define WRITE_END 1
@@ -168,20 +168,6 @@ struct sigaction *create_handler (int signum, void (*handler)(int))
 
 PCB* choose_process ()
 {
-    /*
-    3) When a SIGALRM arrives, scheduler() will be called. It calls
-        choose_process which currently always returns the idle process. Do the
-        following.
-        a) Update the PCB for the process that was interrupted including the
-            number of context switches and interrupts it had, and changing its
-            state from RUNNING to READY.
-        b) If there are any processes on the new_list, do the following.
-            i) Take the one off the new_list and put it on the processes list.
-            ii) Change its state to RUNNING, and fork() and execl() it.
-        c) Modify choose_process to round robin the processes in the processes
-            queue that are READY. If no process is READY in the queue, execute
-            the idle process.
-    */
     running->interrupts++;
     running->state = READY;
 
@@ -196,7 +182,7 @@ PCB* choose_process ()
         if (pid == 0)
         {
             cout << "Executing " << new_process->name;
-            if (execl(new_process->name, new_process->name, commlink, NULL) == -1)
+            if (execl(new_process->name, commlink, NULL) == -1)
             {
                 cout  << " failed. Removing from new_list.";
                 perror("execl");
@@ -312,18 +298,19 @@ void process_done (int signum)
 void trapper(int signum)
 {
     assert (signum == SIGTRAP);
-    cout << "It's a trap! (" << signum << ")" << endl;
+    cout << "It's a trap!" << endl;
 
     char buffer[BUFFER_SIZE];
 
-    if ((read((running->commlinkidx) + READ_END, buffer, BUFFER_SIZE)) == -1)
+    if (read(running->commlinkidx + READ_END, buffer, BUFFER_SIZE) == -1)
     {
         perror("read");
+        cout << "Read error in file: " << __FILE__ << endl;
     }
 
     /*
     ** Using the index of the pipe of the process currently running,
-    ** read the mesage sent and signaled by the SIGTRAP.
+    ** read the message sent and signaled by the SIGTRAP.
     */
     list<PCB*>::iterator process;
 
@@ -362,6 +349,10 @@ void trapper(int signum)
         {
             perror("kill");
         }
+    }
+    else
+    {
+        cout << "Invalid message from child: " << buffer[0] << endl;
     }
 }
 
